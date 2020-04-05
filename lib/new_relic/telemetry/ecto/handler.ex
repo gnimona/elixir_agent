@@ -1,5 +1,14 @@
 defmodule NewRelic.Telemetry.Ecto.Handler do
   @moduledoc false
+  require Logger
+
+  defp fetch_value(config) do
+    case config do
+      {:system, env_var} -> System.get_env(env_var)
+      {m, f, a} -> apply(m, f, a)
+      value -> value
+    end
+  end
 
   def handle_event(
         _event,
@@ -17,9 +26,9 @@ defmodule NewRelic.Telemetry.Ecto.Handler do
     queue_time_ms = measurements[:queue_time] |> to_ms
     decode_time_ms = measurements[:decode_time] |> to_ms
 
-    database = config.repo_configs[repo][:database] || "unknown"
-    hostname = config.repo_configs[repo][:hostname] || "unknown"
-    port = config.repo_configs[repo][:port] || "unknown"
+    database = fetch_value(config.repo_configs[repo][:database]) || "unknown"
+    hostname = fetch_value(config.repo_configs[repo][:hostname]) || "unknown"
+    port = fetch_value(config.repo_configs[repo][:port]) || "unknown"
 
     query = (config.collect_sql? && metadata.query) || ""
 

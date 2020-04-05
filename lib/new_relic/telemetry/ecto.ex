@@ -1,6 +1,7 @@
 defmodule NewRelic.Telemetry.Ecto do
   use GenServer
 
+  require Logger
   @moduledoc """
   `NewRelic.Telemetry.Ecto` provides `Ecto` instrumentation via `telemetry`.
 
@@ -19,6 +20,7 @@ defmodule NewRelic.Telemetry.Ecto do
   """
 
   def start_link(otp_app) do
+    Logger.info("otp_app: #{inspect(otp_app)}")
     enabled = NewRelic.Config.feature?(:ecto_instrumentation)
     ecto_repos = Application.get_env(otp_app, :ecto_repos)
     config = extract_config(otp_app, ecto_repos)
